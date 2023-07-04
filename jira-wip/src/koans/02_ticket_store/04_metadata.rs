@@ -1,11 +1,5 @@
 use super::id_generation::TicketId;
 use super::recap::Status;
-/// `chrono` is the go-to crate in the Rust ecosystem when working with time.
-/// `DateTime` deals with timezone-aware datetimes - it takes the timezone as a type parameter.
-/// `DateTime<Utc>` is the type for datetimes expressed in the coordinated universal time.
-/// See:
-/// - https://en.wikipedia.org/wiki/Coordinated_Universal_Time
-/// - https://docs.rs/chrono/0.4.11/chrono/
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
@@ -14,13 +8,6 @@ struct TicketStore {
     current_id: TicketId,
 }
 
-/// When we retrieve a ticket we saved, we'd like to receive with it a bunch of metadata:
-/// - the generated id;
-/// - the datetime of its creation.
-///
-/// Make the necessary changes without touching the types of the inputs and the returned
-/// objects in our methods!
-/// You can make inputs mutable, if needed.
 impl TicketStore {
     pub fn new() -> TicketStore {
         TicketStore {
@@ -29,8 +16,10 @@ impl TicketStore {
         }
     }
 
-    pub fn save(&mut self, ticket: Ticket) -> TicketId {
+    pub fn save(&mut self, mut ticket: Ticket) -> TicketId {
         let id = self.generate_id();
+        ticket.id = Some(id);
+        ticket.created_at = Some(Utc::now());
         self.data.insert(id, ticket);
         id
     }
@@ -47,9 +36,11 @@ impl TicketStore {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ticket {
+    id: Option<TicketId>,
     title: String,
     description: String,
     status: Status,
+    created_at: Option<DateTime<Utc>>,
 }
 
 impl Ticket {
@@ -66,13 +57,16 @@ impl Ticket {
     }
 
     // The datetime when the ticket was saved in the store, if it was saved.
-    pub fn created_at(&self) -> __ {
-        todo!()
+    pub fn created_at(&self) -> Option<DateTime<Utc>> {
+        self.created_at
     }
 
     // The id associated with the ticket when it was saved in the store, if it was saved.
-    pub fn id(&self) -> __ {
-        todo!()
+    pub fn id(&self) -> Option<&TicketId> {
+        match &self.id {
+            None => None,
+            Some(id) => Some(id),
+        }
     }
 }
 
@@ -91,6 +85,8 @@ pub fn create_ticket(title: String, description: String, status: Status) -> Tick
         title,
         description,
         status,
+        id: None,
+        created_at: None,
     }
 }
 

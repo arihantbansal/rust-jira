@@ -4,10 +4,6 @@ use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::error::Error;
 
-/// Let's turn our attention again to our `TicketStore`.
-/// We can create a ticket, we can retrieve a ticket.
-///
-/// Let's implement a `list` method to retrieve all tickets currently in the store.
 struct TicketStore {
     data: HashMap<TicketId, Ticket>,
     current_id: TicketId,
@@ -38,12 +34,8 @@ impl TicketStore {
         self.data.get(id)
     }
 
-    /// List will return a `Vec`.
-    /// Check the Rust book for a primer: https://doc.rust-lang.org/book/ch08-01-vectors.html
-    /// The Rust documentation for `HashMap` will also be handy:
-    /// https://doc.rust-lang.org/std/collections/struct.HashMap.html
     pub fn list(&self) -> Vec<&Ticket> {
-        todo!()
+        self.data.values().collect()
     }
 
     fn generate_id(&mut self) -> TicketId {

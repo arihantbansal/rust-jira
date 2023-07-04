@@ -4,41 +4,6 @@ use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::error::Error;
 
-/// The structure of our code is coming along quite nicely: it looks and feels like idiomatic
-/// Rust and it models appropriately the domain we are tackling, JIRA.
-///
-/// There is still something we can improve though: our validation logic when creating a new
-/// draft.
-/// Our previous function, `create_ticket_draft`, panicked when either the title or
-/// the description failed our validation checks.
-/// The caller has no idea that this can happen - the function signature looks quite innocent:
-/// ```
-/// pub fn create_ticket_draft(title: String, description: String, status: Status) -> TicketDraft
-/// ```
-/// Panics are generally not "caught" by the caller: they are meant to be used for states
-/// that your program cannot recover from.
-///
-/// For expected error scenarios, we can do a better job using `Result`:
-/// ```
-/// pub fn create_ticket_draft(title: String, description: String, status: Status) -> Result<TicketDraft, ValidationError>
-/// ```
-/// `Result` is an enum defined in the standard library, just like `Option`.
-/// While `Option` encodes the possibility that some data might be missing, `Result`
-/// encodes the idea that an operation can fail.
-///
-/// Its definition looks something like this:
-/// ```
-/// pub enum Result<T, E> {
-///     Ok(T),
-///     Err(E)
-/// }
-/// ```
-/// The `Ok` variant is used to return the outcome of the function if its execution was successful.
-/// The `Err` variant is used to return an error describing what went wrong.
-///
-/// The error type, `E`, has to implement the `Error` trait from the standard library.
-/// Let's archive our old `create_ticket_draft` function and let's define a new
-/// `TicketDraft::new` method returning a `Result` to better set expectations with the caller.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TicketDraft {
     title: String,
@@ -58,10 +23,14 @@ impl TicketDraft {
             return Err(ValidationError("Title cannot be empty!".to_string()));
         }
         if title.len() > 50 {
-            todo!()
+            return Err(ValidationError(
+                "Title cannot be longer than 50 characters!".to_string(),
+            ));
         }
         if description.len() > 3000 {
-            todo!()
+            return Err(ValidationError(
+                "Description cannot be longer than 3000 characters!".to_string(),
+            ));
         }
 
         let draft = TicketDraft { title, description };
@@ -69,22 +38,9 @@ impl TicketDraft {
     }
 }
 
-/// Our error struct, to be returned when validation fails.
-/// It's a wrapper around a string, the validation error message.
-/// Structs without field names are called tuple structs, you can read more about them
-/// in the Rust book:
-/// https://doc.rust-lang.org/book/ch05-01-defining-structs.html#using-tuple-structs-without-named-fields-to-create-different-types
 #[derive(PartialEq, Debug, Clone)]
 pub struct ValidationError(String);
 
-/// To use `ValidationError` as the `Err` variant in a `Result` we need to implement
-/// the `Error` trait.
-///
-/// The `Error` trait requires that our struct implements the `Debug` and `Display` traits,
-/// because errors might be bubbled up all the way until they are shown to the end user.
-/// We can derive `Debug`, but `Display` has to be implemented explicitly:
-/// `Display` rules how your struct is printed out for user-facing input, hence it cannot be
-/// derived automatically.
 impl Error for ValidationError {}
 
 impl std::fmt::Display for ValidationError {

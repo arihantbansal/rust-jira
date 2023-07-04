@@ -1,19 +1,3 @@
-//! Playing around with the CLI using `cargo run --bin jira-wip` you might have noticed
-//! that is quite tricky to actually exercise all the functionality we implemented:
-//! the store is created anew for every execution, nothing is persisted!
-//!
-//! Time to put a remedy to that: we want to persist our store to disk between CLI invocations,
-//! reloading it before performing the next command.
-//!
-//! We will be relying on the `serde` crate (`Ser`ialisation/`De`serialisation):
-//! it can serialise data to many different file formats as long as your struct or enums
-//! implement serde's `Serialize` trait.
-//! `Deserialize`, instead, is needed for the opposite journey.
-//!
-//! You don't need to implement this manually: just add `#[derive(Serialize, Deserialize)]`
-//! where needed in `store_recap` - the `load` and `save` functions should just work afterwards!
-//!
-//! Update `src/main.rs` appropriately afterwards to use the fruit of your labor!
 use super::store_recap::TicketStore;
 use std::fs::read_to_string;
 use std::path::Path;
